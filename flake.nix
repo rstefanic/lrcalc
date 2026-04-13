@@ -15,6 +15,7 @@
         devShells.default = pkgs.mkShell {
           buildInputs = [
             pkgs.odin
+            pkgs.raylib
           ];
         };
       }
