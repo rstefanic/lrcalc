@@ -8,6 +8,33 @@ import mu "vendor:microui"
 mu_ctx: mu.Context
 atlas_texture: rl.Texture2D
 
+Button :: struct {
+    label: string,
+}
+
+CALCULATOR_BUTTONS :: []Button{
+    Button{"<-"},
+    Button{"AC"},
+    Button{"%"},
+    Button{"/"},
+    Button{"7"},
+    Button{"8"},
+    Button{"9"},
+    Button{"x"},
+    Button{"4"},
+    Button{"5"},
+    Button{"6"},
+    Button{"-"},
+    Button{"1"},
+    Button{"2"},
+    Button{"3"},
+    Button{"+"},
+    Button{"+/-"},
+    Button{"0"},
+    Button{"."},
+    Button{"="},
+}
+
 main :: proc () {
     rl.InitWindow(1024, 768, "LRCalc")
     defer rl.CloseWindow()
@@ -44,23 +71,25 @@ main :: proc () {
             mu.begin(&mu_ctx)
             defer mu.end(&mu_ctx)
 
+            button_layout := []i32{100, 100, 100, 100}
+
             if mu.begin_window(&mu_ctx, "Store", mu.Rect{0, 0, 1024, 150}, mu.Options{.NO_RESIZE}) {
                 defer mu.end_window(&mu_ctx)
             }
 
             if mu.begin_window(&mu_ctx, "L Calc", mu.Rect{0, 150, 512, 628}, mu.Options{.NO_RESIZE}) {
                 defer mu.end_window(&mu_ctx)
-                mu.layout_row(&mu_ctx, {80, 80, 80})
-                for i := 1; i < 10; i += 1 {
-                    mu.button(&mu_ctx, fmt.tprintf("%d", i))
+                mu.layout_row(&mu_ctx, button_layout)
+                for btn in CALCULATOR_BUTTONS {
+                    mu.button(&mu_ctx, btn.label)
                 }
             }
 
             if mu.begin_window(&mu_ctx, "R Calc", mu.Rect{512, 150, 512, 628}, mu.Options{.NO_RESIZE}) {
                 defer mu.end_window(&mu_ctx)
-                mu.layout_row(&mu_ctx, {80, 80, 80})
-                for i := 1; i < 10; i += 1 {
-                    mu.button(&mu_ctx, fmt.tprintf("%d", i))
+                mu.layout_row(&mu_ctx, button_layout)
+                for btn in CALCULATOR_BUTTONS {
+                    mu.button(&mu_ctx, btn.label)
                 }
             }
         }
