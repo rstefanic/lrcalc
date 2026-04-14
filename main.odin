@@ -1,6 +1,7 @@
 package main
 
 import "core:fmt"
+import "core:math"
 import rl "vendor:raylib"
 import mu "vendor:microui"
 
@@ -35,6 +36,7 @@ main :: proc () {
     mu.init(&mu_ctx)
     mu_ctx.text_width = mu.default_atlas_text_width
     mu_ctx.text_height = mu.default_atlas_text_height
+    mu_ctx.style.size = {72, 72}
 
     for !rl.WindowShouldClose() {
         // Process UI
@@ -80,8 +82,9 @@ main :: proc () {
                         // Render each character
                         for ch in cmd.str do if ch&0xc0 != 0x80 {
                             r := int(ch) % 127
+                            scale: f32 = 1.4 // scale of the text size
 
-                            // Get the character from the default atlas
+                            // Part of the atlas that contains our character
                             rect := mu.default_atlas[mu.DEFAULT_ATLAS_FONT + r]
                             src := rl.Rectangle{
                                 f32(rect.x),
@@ -90,12 +93,26 @@ main :: proc () {
                                 f32(rect.h)
                             }
 
+                            // Calculate where it's going
+                            dest := rl.Rectangle{
+                                f32(pos.x),
+                                f32(pos.y),
+                                f32(rect.w) * scale,
+                                f32(rect.h) * scale,
+                            }
+
                             // Draw the character
-                            position := rl.Vector2{f32(pos.x), f32(pos.y)}
-                            rl.DrawTextureRec(atlas_texture, src, position, transmute(rl.Color)cmd.color)
+                            rl.DrawTexturePro(
+                                atlas_texture,
+                                src,
+                                dest,
+                                rl.Vector2{0, 0}, // origin
+                                0, // rotation
+                                transmute(rl.Color)cmd.color
+                            )
 
                             // Advance the position to setup for the next character.
-                            pos.x += rect.w
+                            pos.x += rect.w * i32(math.ceil_f32(scale))
                         }
                     case ^mu.Command_Rect:
                         rl.DrawRectangle(cmd.rect.x, cmd.rect.y, cmd.rect.w, cmd.rect.h, transmute(rl.Color)cmd.color)
