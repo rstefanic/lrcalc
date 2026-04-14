@@ -66,6 +66,31 @@ main :: proc () {
     mu_ctx.style.size = {72, 72}
 
     for !rl.WindowShouldClose() {
+        // Pass raylib inputs to microui
+        {
+            // Mouse position
+            mouse_pos := [2]i32{rl.GetMouseX(), rl.GetMouseY()}
+            mu.input_mouse_move(&mu_ctx, mouse_pos.x, mouse_pos.y)
+
+            // Map raylib mouse button to microui
+            @static mouse_mapper := [?]struct{
+                rl_btn: rl.MouseButton,
+                mu_btn: mu.Mouse,
+            }{
+                {.LEFT, .LEFT},
+                {.RIGHT, .RIGHT},
+                {.MIDDLE, .MIDDLE},
+            }
+
+            for btn in mouse_mapper {
+                if rl.IsMouseButtonPressed(btn.rl_btn) {
+                    mu.input_mouse_down(&mu_ctx, mouse_pos.x, mouse_pos.y, btn.mu_btn)
+                } else if rl.IsMouseButtonReleased(btn.rl_btn) {
+                    mu.input_mouse_up(&mu_ctx, mouse_pos.x, mouse_pos.y, btn.mu_btn)
+                }
+            }
+        }
+
         // Process UI
         {
             mu.begin(&mu_ctx)
