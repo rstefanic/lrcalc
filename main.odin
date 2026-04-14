@@ -42,14 +42,24 @@ main :: proc () {
             mu.begin(&mu_ctx)
             defer mu.end(&mu_ctx)
 
-            if mu.begin_window(&mu_ctx, "L Calc", mu.Rect{40, 40, 300, 450}) {
+            if mu.begin_window(&mu_ctx, "Store", mu.Rect{0, 0, 1024, 150}, mu.Options{.NO_RESIZE}) {
                 defer mu.end_window(&mu_ctx)
+            }
 
-                mu.layout_row(&mu_ctx, {30, 30})
-                mu.button(&mu_ctx, "")
-                mu.button(&mu_ctx, "")
-                mu.button(&mu_ctx, "")
-                mu.button(&mu_ctx, "")
+            if mu.begin_window(&mu_ctx, "L Calc", mu.Rect{0, 150, 512, 628}, mu.Options{.NO_RESIZE}) {
+                defer mu.end_window(&mu_ctx)
+                mu.layout_row(&mu_ctx, {80, 80, 80})
+                for i := 1; i < 10; i += 1 {
+                    mu.button(&mu_ctx, fmt.tprintf("%d", i))
+                }
+            }
+
+            if mu.begin_window(&mu_ctx, "R Calc", mu.Rect{512, 150, 512, 628}, mu.Options{.NO_RESIZE}) {
+                defer mu.end_window(&mu_ctx)
+                mu.layout_row(&mu_ctx, {80, 80, 80})
+                for i := 1; i < 10; i += 1 {
+                    mu.button(&mu_ctx, fmt.tprintf("%d", i))
+                }
             }
         }
 
