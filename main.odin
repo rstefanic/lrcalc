@@ -112,21 +112,9 @@ main :: proc () {
             mu.begin(&mu_ctx)
             defer mu.end(&mu_ctx)
 
-            button_layout := []i32{100, 100, 100, 100}
-
-            if mu.begin_window(&mu_ctx, "Store", mu.Rect{0, 0, 1024, 150}, mu.Options{.NO_RESIZE}) {
-                defer mu.end_window(&mu_ctx)
-            }
+            button_layout := []i32{110, 110, 110, 110}
 
             if mu.begin_window(&mu_ctx, "L Calc", mu.Rect{0, 150, 512, 628}, mu.Options{.NO_RESIZE}) {
-                defer mu.end_window(&mu_ctx)
-                mu.layout_row(&mu_ctx, button_layout)
-                for btn in CALCULATOR_BUTTONS {
-                    mu.button(&mu_ctx, btn.label)
-                }
-            }
-
-            if mu.begin_window(&mu_ctx, "R Calc", mu.Rect{512, 150, 512, 628}, mu.Options{.NO_RESIZE}) {
                 defer mu.end_window(&mu_ctx)
                 mu.layout_row(&mu_ctx, button_layout)
                 for btn in CALCULATOR_BUTTONS {
