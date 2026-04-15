@@ -37,7 +37,7 @@ CALCULATOR_BUTTONS :: []Button{
 }
 
 main :: proc () {
-    rl.InitWindow(1024, 768, "LRCalc")
+    rl.InitWindow(512, 412, "LRCalc")
     defer rl.CloseWindow()
 
     // Initialize text
@@ -64,7 +64,7 @@ main :: proc () {
     mu.init(&mu_ctx)
     mu_ctx.text_width = mu.default_atlas_text_width
     mu_ctx.text_height = mu.default_atlas_text_height
-    mu_ctx.style.size = {72, 72}
+    mu_ctx.style.size = 48
 
     calculator := Calculator{0, 0, .NONE}
 
@@ -99,15 +99,16 @@ main :: proc () {
             mu.begin(&mu_ctx)
             defer mu.end(&mu_ctx)
 
-            button_layout := []i32{110, 110, 110, 110}
+            button_layout := []i32{110, 110, 110, -1}
 
-            if mu.begin_window(&mu_ctx, "L Calc", mu.Rect{0, 150, 512, 628}, mu.Options{.NO_RESIZE}) {
+            if mu.begin_window(&mu_ctx, "Calc", mu.Rect{0, 0, 512, 412}, mu.Options{.NO_RESIZE}) {
                 defer mu.end_window(&mu_ctx)
                 if calculator.op == .NONE && calculator.buffer == 0 {
                     mu.label(&mu_ctx, fmt.tprintf("%d", calculator.result))
                 } else {
                     mu.label(&mu_ctx, fmt.tprintf("%d", calculator.buffer))
                 }
+
                 mu.layout_row(&mu_ctx, button_layout)
                 for btn in CALCULATOR_BUTTONS {
                     if .SUBMIT in mu.button(&mu_ctx, btn.label) {
