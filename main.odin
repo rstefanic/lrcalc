@@ -8,6 +8,20 @@ import mu "vendor:microui"
 mu_ctx: mu.Context
 atlas_texture: rl.Texture2D
 
+Operation :: enum {
+    NONE,
+    ADDITION,
+    SUBTRACTION,
+    MULTIPLICATION,
+    DIVISION,
+}
+
+Calculator :: struct {
+    result: i32, // the result of all operations
+    buffer: i32, // current value the user is entering in
+    op: Operation,
+}
+
 Button :: struct {
     label: string,
 }
@@ -64,6 +78,8 @@ main :: proc () {
     mu_ctx.text_width = mu.default_atlas_text_width
     mu_ctx.text_height = mu.default_atlas_text_height
     mu_ctx.style.size = {72, 72}
+
+    calculator := Calculator{0, 0, .NONE}
 
     for !rl.WindowShouldClose() {
         // Pass raylib inputs to microui
