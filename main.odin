@@ -24,29 +24,30 @@ Calculator :: struct {
 
 Button :: struct {
     label: string,
+    action: proc(calc: ^Calculator)
 }
 
 CALCULATOR_BUTTONS :: []Button{
-    Button{"<-"},
-    Button{"AC"},
-    Button{"%"},
-    Button{"/"},
-    Button{"7"},
-    Button{"8"},
-    Button{"9"},
-    Button{"x"},
-    Button{"4"},
-    Button{"5"},
-    Button{"6"},
-    Button{"-"},
-    Button{"1"},
-    Button{"2"},
-    Button{"3"},
-    Button{"+"},
-    Button{"+/-"},
-    Button{"0"},
-    Button{"."},
-    Button{"="},
+    Button{"<-", proc(c: ^Calculator) {}},
+    Button{"AC", proc(c: ^Calculator) {}},
+    Button{"%", proc(c: ^Calculator) {}},
+    Button{"/", proc(c: ^Calculator) { c^.op = .DIVISION }},
+    Button{"7", proc(c: ^Calculator) {}},
+    Button{"8", proc(c: ^Calculator) {}},
+    Button{"9", proc(c: ^Calculator) {}},
+    Button{"x", proc(c: ^Calculator) { c^.op = .MULTIPLICATION }},
+    Button{"4", proc(c: ^Calculator) {}},
+    Button{"5", proc(c: ^Calculator) {}},
+    Button{"6", proc(c: ^Calculator) {}},
+    Button{"-", proc(c: ^Calculator) { c^.op = .SUBTRACTION }},
+    Button{"1", proc(c: ^Calculator) {}},
+    Button{"2", proc(c: ^Calculator) {}},
+    Button{"3", proc(c: ^Calculator) {}},
+    Button{"+", proc(c: ^Calculator) { c^.op = .ADDITION }},
+    Button{"+/-", proc(c: ^Calculator) {}},
+    Button{"0", proc(c: ^Calculator) {}},
+    Button{".", proc(c: ^Calculator) {}},
+    Button{"=", proc(c: ^Calculator) {}},
 }
 
 main :: proc () {
@@ -116,9 +117,12 @@ main :: proc () {
 
             if mu.begin_window(&mu_ctx, "L Calc", mu.Rect{0, 150, 512, 628}, mu.Options{.NO_RESIZE}) {
                 defer mu.end_window(&mu_ctx)
+                mu.label(&mu_ctx, fmt.tprintf("%s", calculator))
                 mu.layout_row(&mu_ctx, button_layout)
                 for btn in CALCULATOR_BUTTONS {
-                    mu.button(&mu_ctx, btn.label)
+                    if .SUBMIT in mu.button(&mu_ctx, btn.label) {
+                        btn.action(&calculator)
+                    }
                 }
             }
         }
