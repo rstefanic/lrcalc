@@ -8,46 +8,32 @@ import mu "vendor:microui"
 mu_ctx: mu.Context
 atlas_texture: rl.Texture2D
 
-Operation :: enum {
-    NONE,
-    ADDITION,
-    SUBTRACTION,
-    MULTIPLICATION,
-    DIVISION,
-}
-
-Calculator :: struct {
-    result: i32, // the result of all operations
-    buffer: i32, // current value the user is entering in
-    op: Operation,
-}
-
 Button :: struct {
     label: string,
     action: proc(calc: ^Calculator)
 }
 
 CALCULATOR_BUTTONS :: []Button{
-    Button{"<-", proc(c: ^Calculator) {}},
-    Button{"AC", proc(c: ^Calculator) {}},
+    Button{"<-", proc(c: ^Calculator) { c^.buffer /= 10 }},
+    Button{"AC", proc(c: ^Calculator) { c^.result = 0; c^.buffer = 0}},
     Button{"%", proc(c: ^Calculator) {}},
-    Button{"/", proc(c: ^Calculator) { c^.op = .DIVISION }},
-    Button{"7", proc(c: ^Calculator) {}},
-    Button{"8", proc(c: ^Calculator) {}},
-    Button{"9", proc(c: ^Calculator) {}},
-    Button{"x", proc(c: ^Calculator) { c^.op = .MULTIPLICATION }},
-    Button{"4", proc(c: ^Calculator) {}},
-    Button{"5", proc(c: ^Calculator) {}},
-    Button{"6", proc(c: ^Calculator) {}},
-    Button{"-", proc(c: ^Calculator) { c^.op = .SUBTRACTION }},
-    Button{"1", proc(c: ^Calculator) {}},
-    Button{"2", proc(c: ^Calculator) {}},
-    Button{"3", proc(c: ^Calculator) {}},
-    Button{"+", proc(c: ^Calculator) { c^.op = .ADDITION }},
-    Button{"+/-", proc(c: ^Calculator) {}},
-    Button{"0", proc(c: ^Calculator) {}},
+    Button{"/", proc(c: ^Calculator) { c^.op = .DIVISION; c^.result = c.buffer; c^.buffer = 0 }},
+    Button{"7", proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 7 }},
+    Button{"8", proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 8 }},
+    Button{"9", proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 9 }},
+    Button{"x", proc(c: ^Calculator) { c^.op = .MULTIPLICATION; c^.result = c.buffer; c^.buffer = 0 }},
+    Button{"4", proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 4 }},
+    Button{"5", proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 5 }},
+    Button{"6", proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 6 }},
+    Button{"-", proc(c: ^Calculator) { c^.op = .SUBTRACTION; c^.result = c.buffer; c^.buffer = 0 }},
+    Button{"1", proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 1 }},
+    Button{"2", proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 2 }},
+    Button{"3", proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 3 }},
+    Button{"+", proc(c: ^Calculator) { c^.op = .ADDITION; c^.result = c.buffer; c^.buffer = 0 }},
+    Button{"+/-", proc(c: ^Calculator) { c^.buffer *= -1 }},
+    Button{"0", proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 0 }},
     Button{".", proc(c: ^Calculator) {}},
-    Button{"=", proc(c: ^Calculator) {}},
+    Button{"=", equals},
 }
 
 main :: proc () {
@@ -117,7 +103,11 @@ main :: proc () {
 
             if mu.begin_window(&mu_ctx, "L Calc", mu.Rect{0, 150, 512, 628}, mu.Options{.NO_RESIZE}) {
                 defer mu.end_window(&mu_ctx)
-                mu.label(&mu_ctx, fmt.tprintf("%s", calculator))
+                if calculator.op == .NONE && calculator.buffer == 0 {
+                    mu.label(&mu_ctx, fmt.tprintf("%d", calculator.result))
+                } else {
+                    mu.label(&mu_ctx, fmt.tprintf("%d", calculator.buffer))
+                }
                 mu.layout_row(&mu_ctx, button_layout)
                 for btn in CALCULATOR_BUTTONS {
                     if .SUBMIT in mu.button(&mu_ctx, btn.label) {
