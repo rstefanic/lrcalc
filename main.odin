@@ -16,20 +16,20 @@ Button :: struct {
 CALCULATOR_BUTTONS :: []Button{
     Button{"<-", proc(c: ^Calculator) { c^.buffer /= 10 }},
     Button{"AC", proc(c: ^Calculator) { c^.result = 0; c^.buffer = 0}},
-    Button{"%", proc(c: ^Calculator) { c^.op = .MODULO; c^.result = c.buffer; c^.buffer = 0 }},
-    Button{"/", proc(c: ^Calculator) { c^.op = .DIVISION; c^.result = c.buffer; c^.buffer = 0 }},
+    Button{"%", proc(c: ^Calculator) { set_op_expression(c, .MODULO) }},
+    Button{"/", proc(c: ^Calculator) { set_op_expression(c, .DIVISION) }},
     Button{"7", proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 7 }},
     Button{"8", proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 8 }},
     Button{"9", proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 9 }},
-    Button{"x", proc(c: ^Calculator) { c^.op = .MULTIPLICATION; c^.result = c.buffer; c^.buffer = 0 }},
+    Button{"x", proc(c: ^Calculator) { set_op_expression(c, .MULTIPLICATION) }},
     Button{"4", proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 4 }},
     Button{"5", proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 5 }},
     Button{"6", proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 6 }},
-    Button{"-", proc(c: ^Calculator) { c^.op = .SUBTRACTION; c^.result = c.buffer; c^.buffer = 0 }},
+    Button{"-", proc(c: ^Calculator) { set_op_expression(c, .SUBTRACTION) }},
     Button{"1", proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 1 }},
     Button{"2", proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 2 }},
     Button{"3", proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 3 }},
-    Button{"+", proc(c: ^Calculator) { c^.op = .ADDITION; c^.result = c.buffer; c^.buffer = 0 }},
+    Button{"+", proc(c: ^Calculator) { set_op_expression(c, .ADDITION) }},
     Button{"+/-", proc(c: ^Calculator) { c^.buffer *= -1 }},
     Button{"0", proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 0 }},
     Button{".", proc(c: ^Calculator) {}},
@@ -66,7 +66,7 @@ main :: proc () {
     mu_ctx.text_height = mu.default_atlas_text_height
     mu_ctx.style.size = 48
 
-    calculator := Calculator{0, 0, .NONE}
+    calculator := Calculator{0, .NONE, 0, nil}
 
     for !rl.WindowShouldClose() {
         // Pass raylib inputs to microui
