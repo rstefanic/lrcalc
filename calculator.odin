@@ -29,11 +29,6 @@ Expression :: union {
 }
 
 Calculator :: struct {
-    // TODO: Remove these
-    result: i64, // the result of all operator
-    op: Operator,
-
-    // TODO: KEEP
     buffer: i64, // current value the user is entering in
     expr: Maybe(Expression)
 }
@@ -134,24 +129,7 @@ create_term_from_buffer :: proc(c: ^Calculator) {
 }
 
 equals :: proc(c: ^Calculator) {
-    switch c.op {
-    case .NONE:
-        // Do nothing if there is no operator set
-        return 
-    case .ADDITION:
-        c^.result += c.buffer
-    case .SUBTRACTION:
-        c^.result -= c.buffer
-    case .MULTIPLICATION:
-        c^.result *= c.buffer
-    case .DIVISION:
-        // TODO: Handle case where we may try to divide by 0
-        c^.result /= c.buffer
-    case .MODULO:
-        c^.result = c.result % c.buffer
-    }
-
+    c^.expr = evaluate_expression(c.expr)
     c^.buffer = 0
-    c^.op = .NONE
 }
 
