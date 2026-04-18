@@ -6,6 +6,7 @@ Operation :: enum {
     SUBTRACTION,
     MULTIPLICATION,
     DIVISION,
+    MODULO,
 }
 
 Calculator :: struct {
@@ -28,6 +29,8 @@ equals :: proc(c: ^Calculator) {
     case .DIVISION:
         // TODO: Handle case where we may try to divide by 0
         c^.result /= c.buffer
+    case .MODULO:
+        c^.result = c.result % c.buffer
     }
 
     c^.buffer = 0

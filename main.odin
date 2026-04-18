@@ -16,7 +16,7 @@ Button :: struct {
 CALCULATOR_BUTTONS :: []Button{
     Button{"<-", proc(c: ^Calculator) { c^.buffer /= 10 }},
     Button{"AC", proc(c: ^Calculator) { c^.result = 0; c^.buffer = 0}},
-    Button{"%", proc(c: ^Calculator) {}},
+    Button{"%", proc(c: ^Calculator) { c^.op = .MODULO; c^.result = c.buffer; c^.buffer = 0 }},
     Button{"/", proc(c: ^Calculator) { c^.op = .DIVISION; c^.result = c.buffer; c^.buffer = 0 }},
     Button{"7", proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 7 }},
     Button{"8", proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 8 }},
