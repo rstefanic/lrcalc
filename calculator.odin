@@ -101,12 +101,12 @@ set_op_expression :: proc(c: ^Calculator, op: Operator) {
     switch &e in c.expr {
         case Term:
             new_expr.lhs = buf
-            new_expr.rhs = nil
         case ^SubExpression:
+            e.rhs = buf
             new_expr.lhs = e
-            new_expr.rhs = buf
     }
 
+    new_expr.rhs = nil
     new_expr.op = op
     c.expr = new_expr
     c^.buffer = 0       // reset the buffer
