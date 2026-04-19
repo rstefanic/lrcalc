@@ -33,32 +33,26 @@ Calculator :: struct {
     expr: Expression
 }
 
-evaluate_expression :: proc(expr: Maybe(Expression)) -> Term {
+evaluate_expression :: proc(expr: Expression) -> Term {
     result := Term(0)
 
-    // If there is no expression, just return 0
-    expression, ok := expr.?
-    if !ok {
-        return result
-    }
-
-    switch expr in expression {
+    switch expression in expr {
         case Term:
-            result = expr
+            result = expression
         case ^SubExpression:
-            result = evaluate_subexpression(expr^)
+            result = evaluate_subexpression(expression)
     }
 
     return result
 }
 
-evaluate_subexpression :: proc(expr: SubExpression) -> Term {
+evaluate_subexpression :: proc(expr: ^SubExpression) -> Term {
     lhs := Term(0)
     switch l in expr.lhs {
     case Term:
         lhs = l
     case ^SubExpression:
-        lhs = evaluate_subexpression(l^)
+        lhs = evaluate_subexpression(l)
     }
 
     // If there is nothing on the RHS, then just return the LHS term
@@ -72,7 +66,7 @@ evaluate_subexpression :: proc(expr: SubExpression) -> Term {
     case Term:
         rhs = r
     case ^SubExpression:
-        rhs = evaluate_subexpression(r^)
+        rhs = evaluate_subexpression(r)
     }
 
     result := Term(0)
