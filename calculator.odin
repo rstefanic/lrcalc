@@ -24,7 +24,7 @@ SubExpression :: struct {
 }
 
 Expression :: union {
-    SubExpression,
+    ^SubExpression,
     Term
 }
 
@@ -45,8 +45,8 @@ evaluate_expression :: proc(expr: Maybe(Expression)) -> Term {
     switch expr in expression {
         case Term:
             result = expr
-        case SubExpression:
-            result = evaluate_subexpression(expr)
+        case ^SubExpression:
+            result = evaluate_subexpression(expr^)
     }
 
     return result
@@ -99,15 +99,20 @@ evaluate_subexpression :: proc(expr: SubExpression) -> Term {
 }
 
 set_op_expression :: proc(c: ^Calculator, op: Operator) {
+    buf := Term(c.buffer)
+    new_expr := new(SubExpression)
+
     switch &e in c.expr {
         case Term:
-            // Promote the term into a sub expression
-            existing_term := e
-            c.expr = SubExpression{existing_term, nil, op}
-        case SubExpression:
-            // Otherwise overwrite the existing expression
-            e.op = op
+            new_expr.lhs = buf
+            new_expr.rhs = nil
+        case ^SubExpression:
+            new_expr.lhs = e
+            new_expr.rhs = buf
     }
+
+    new_expr.op = op
+    c.expr = new_expr
 }
 
 create_term_from_buffer :: proc(c: ^Calculator) {
