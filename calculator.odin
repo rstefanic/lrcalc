@@ -115,7 +115,13 @@ create_term_from_buffer :: proc(c: ^Calculator) {
 }
 
 equals :: proc(c: ^Calculator) {
-    c^.expr = evaluate_expression(c.expr)
-    c^.buffer = 0
+    // Move the buffer from the term into the rhs
+    #partial switch e in c.expr {
+    case ^SubExpression:
+        last_term := Term(c.buffer)
+        e.rhs = last_term
+        c^.expr = evaluate_expression(e) // evaluate into a single term
+    }
+    c^.buffer = 0   // reset the buffer
 }
 
