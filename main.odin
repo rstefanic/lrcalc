@@ -71,8 +71,9 @@ main :: proc () {
     mu_ctx.text_width = mu.default_atlas_text_width
     mu_ctx.text_height = mu.default_atlas_text_height
 
-    calculator: Calculator
-    init_calculator(&calculator)
+    calculators := make(map[string]Calculator)
+    calculators["x"] = Calculator{}
+    init_calculator(&calculators["x"])
 
     for !rl.WindowShouldClose() {
         // Pass raylib inputs to microui
@@ -105,30 +106,31 @@ main :: proc () {
             mu.begin(&mu_ctx)
             defer mu.end(&mu_ctx)
 
-            button_layout := []i32{48, 48, 48, -1}
+            // Calculator layout
+            for name, &calculator in calculators {
+                if mu.begin_window(&mu_ctx, fmt.tprintf("Variable (%s)", name), mu.Rect{0, 0, 256, 230}, mu.Options{.NO_RESIZE}) {
+                    defer mu.end_window(&mu_ctx)
 
-            if mu.begin_window(&mu_ctx, "Calc", mu.Rect{0, 0, 256, 230}, mu.Options{.NO_RESIZE}) {
-                defer mu.end_window(&mu_ctx)
+                    sb: strings.Builder
+                    strings.builder_init(&sb)
+                    defer strings.builder_destroy(&sb)
+                    format_expression(&sb, calculator.expr)
 
-                sb: strings.Builder
-                strings.builder_init(&sb)
-                defer strings.builder_destroy(&sb)
-                format_expression(&sb, calculator.expr)
+                    mu.label(&mu_ctx, strings.to_string(sb))
+                    mu.label(&mu_ctx, fmt.tprintf("%d", calculator.buffer))
+                    mu.label(&mu_ctx, fmt.tprintf("%d", evaluate_expression(calculator.expr)))
+                    mu.layout_row(&mu_ctx, []i32{48, 48, 48, -1})
+                    for btn in CALCULATOR_BUTTONS {
+                        if .SUBMIT in mu.button(&mu_ctx, btn.label) {
+                            btn.action(&calculator)
+                        }
 
-                mu.label(&mu_ctx, strings.to_string(sb))
-                mu.label(&mu_ctx, fmt.tprintf("%d", calculator.buffer))
-                mu.label(&mu_ctx, fmt.tprintf("%d", evaluate_expression(calculator.expr)))
-                mu.layout_row(&mu_ctx, button_layout)
-                for btn in CALCULATOR_BUTTONS {
-                    if .SUBMIT in mu.button(&mu_ctx, btn.label) {
-                        btn.action(&calculator)
-                    }
-
-                    // TODO: Only register hotkey if this is the active window
-                    if len(btn.hotkeys) > 0 {
-                        for key in btn.hotkeys {
-                            if rl.IsKeyPressed(key) {
-                                btn.action(&calculator)
+                        // TODO: Only register hotkey if this is the active window
+                        if len(btn.hotkeys) > 0 {
+                            for key in btn.hotkeys {
+                                if rl.IsKeyPressed(key) {
+                                    btn.action(&calculator)
+                                }
                             }
                         }
                     }
