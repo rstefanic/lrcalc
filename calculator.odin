@@ -109,6 +109,7 @@ set_op_expression :: proc(c: ^Calculator, op: Operator) {
 
     new_expr.op = op
     c.expr = new_expr
+    c^.buffer = 0       // reset the buffer
 }
 
 create_term_from_buffer :: proc(c: ^Calculator) {
