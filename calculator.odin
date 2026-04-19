@@ -1,5 +1,7 @@
 package main
 
+import "core:mem"
+
 Operator :: enum {
     NONE,
     ADDITION,
@@ -29,8 +31,16 @@ Expression :: union {
 }
 
 Calculator :: struct {
+    arena: mem.Arena,
+    allocator: mem.Allocator,
     buffer: i64, // current value the user is entering in
-    expr: Expression
+    expr: Expression,
+}
+
+init_calculator :: proc(c: ^Calculator) {
+    arena_buffer := make([]byte, mem.Kilobyte)
+    mem.arena_init(&c.arena, arena_buffer)
+    c.allocator = mem.arena_allocator(&c.arena)
 }
 
 evaluate_expression :: proc(expr: Expression) -> Term {
@@ -92,7 +102,7 @@ evaluate_subexpression :: proc(expr: ^SubExpression) -> Term {
 
 set_op_expression :: proc(c: ^Calculator, op: Operator) {
     buf := Term(c.buffer)
-    new_expr := new(SubExpression)
+    new_expr := new(SubExpression, c.allocator)
 
     switch &e in c.expr {
         case Term:
@@ -125,3 +135,8 @@ equals :: proc(c: ^Calculator) {
     c^.buffer = 0   // reset the buffer
 }
 
+reset :: proc(c: ^Calculator) {
+    mem.arena_free_all(&c.arena)
+    c^.expr = Term(0)
+    c^.buffer = 0   // reset the buffer
+}

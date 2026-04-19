@@ -2,6 +2,8 @@ package main
 
 import "core:fmt"
 import "core:math"
+import "core:mem"
+
 import rl "vendor:raylib"
 import mu "vendor:microui"
 
@@ -67,7 +69,8 @@ main :: proc () {
     mu_ctx.text_height = mu.default_atlas_text_height
     mu_ctx.style.size = 48
 
-    calculator := Calculator{0, Term(0)}
+    calculator: Calculator
+    init_calculator(&calculator)
 
     for !rl.WindowShouldClose() {
         // Pass raylib inputs to microui
