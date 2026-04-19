@@ -30,7 +30,7 @@ Expression :: union {
 
 Calculator :: struct {
     buffer: i64, // current value the user is entering in
-    expr: Maybe(Expression)
+    expr: Expression
 }
 
 evaluate_expression :: proc(expr: Maybe(Expression)) -> Term {
@@ -99,19 +99,7 @@ evaluate_subexpression :: proc(expr: SubExpression) -> Term {
 }
 
 set_op_expression :: proc(c: ^Calculator, op: Operator) {
-    expr, ok := c.expr.?
-
-    // If the expression is empty, we'll promote the buffer
-    // to the term first before setting the operator.
-    if !ok {
-        create_term_from_buffer(c)
-        expr, ok = c.expr.?
-        if !ok {
-            panic("could not convert buffer to expression term")
-        }
-    }
-
-    switch &e in expr {
+    switch &e in c.expr {
         case Term:
             // Promote the term into a sub expression
             existing_term := e
@@ -124,7 +112,7 @@ set_op_expression :: proc(c: ^Calculator, op: Operator) {
 
 create_term_from_buffer :: proc(c: ^Calculator) {
     new_term := Term(c.buffer)  // cast to term
-    c^.expr = new_term          // copy the tery
+    c^.expr = new_term          // copy the term
     c^.buffer = 0               // reset the buffer
 }
 

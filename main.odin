@@ -67,7 +67,7 @@ main :: proc () {
     mu_ctx.text_height = mu.default_atlas_text_height
     mu_ctx.style.size = 48
 
-    calculator := Calculator{0, nil}
+    calculator := Calculator{0, Term(0)}
 
     for !rl.WindowShouldClose() {
         // Pass raylib inputs to microui
