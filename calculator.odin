@@ -12,10 +12,10 @@ Operator :: enum {
 Term :: distinct i64
 
 SubExpression :: struct {
-    lhs: Maybe(union {
+    lhs: union {
         Term,
         ^SubExpression
-    }),
+    },
     rhs: Maybe(union {
         Term,
         ^SubExpression
@@ -53,12 +53,8 @@ evaluate_expression :: proc(expr: Maybe(Expression)) -> Term {
 }
 
 evaluate_subexpression :: proc(expr: SubExpression) -> Term {
-    expr_lhs, lhs_ok := expr.lhs.?
-    if !lhs_ok {
-        expr_lhs = Term(0)
-    }
     lhs := Term(0)
-    switch l in expr_lhs {
+    switch l in expr.lhs {
     case Term:
         lhs = l
     case ^SubExpression:
