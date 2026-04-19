@@ -3,7 +3,6 @@ package main
 import "core:mem"
 
 Operator :: enum {
-    NONE,
     ADDITION,
     SUBTRACTION,
     MULTIPLICATION,
@@ -68,8 +67,6 @@ evaluate_subexpression :: proc(expr: ^SubExpression) -> Term {
 
     result := Term(0)
     switch expr.op {
-        case .NONE:
-            panic("how'd this happen?")
         case .ADDITION:
             result = lhs + rhs
         case .SUBTRACTION:
