@@ -10,6 +10,8 @@ import mu "vendor:microui"
 
 mu_ctx: mu.Context
 atlas_texture: rl.Texture2D
+window_w: i32 = 1024
+window_h: i32 = 768
 
 Button :: struct {
     label: string,
@@ -41,7 +43,7 @@ CALCULATOR_BUTTONS :: []Button{
 }
 
 main :: proc () {
-    rl.InitWindow(512, 412, "LRCalc")
+    rl.InitWindow(window_w, window_h, "LRCalc")
     defer rl.CloseWindow()
 
     // Initialize text
@@ -68,7 +70,6 @@ main :: proc () {
     mu.init(&mu_ctx)
     mu_ctx.text_width = mu.default_atlas_text_width
     mu_ctx.text_height = mu.default_atlas_text_height
-    mu_ctx.style.size = 48
 
     calculator: Calculator
     init_calculator(&calculator)
@@ -104,9 +105,9 @@ main :: proc () {
             mu.begin(&mu_ctx)
             defer mu.end(&mu_ctx)
 
-            button_layout := []i32{110, 110, 110, -1}
+            button_layout := []i32{48, 48, 48, -1}
 
-            if mu.begin_window(&mu_ctx, "Calc", mu.Rect{0, 0, 512, 412}, mu.Options{.NO_RESIZE}) {
+            if mu.begin_window(&mu_ctx, "Calc", mu.Rect{0, 0, 256, 230}, mu.Options{.NO_RESIZE}) {
                 defer mu.end_window(&mu_ctx)
 
                 sb: strings.Builder
@@ -137,7 +138,7 @@ main :: proc () {
 
         // Rendering
         {
-            rl.ClearBackground({255, 255, 255, 255})
+            rl.ClearBackground({100, 100, 100, 100})
             rl.BeginDrawing()
             defer rl.EndDrawing()
 
