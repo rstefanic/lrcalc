@@ -38,6 +38,7 @@ init_calculator :: proc(c: ^Calculator) {
     arena_buffer := make([]byte, mem.Kilobyte)
     mem.arena_init(&c.arena, arena_buffer)
     c.allocator = mem.arena_allocator(&c.arena)
+    reset(c)
 }
 
 evaluate_expression :: proc(expr: Expression) -> Term {
