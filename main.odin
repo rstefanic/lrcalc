@@ -10,30 +10,31 @@ atlas_texture: rl.Texture2D
 
 Button :: struct {
     label: string,
-    action: proc(calc: ^Calculator)
+    hotkeys: []rl.KeyboardKey,
+    action: proc(calc: ^Calculator),
 }
 
 CALCULATOR_BUTTONS :: []Button{
-    Button{"<-", proc(c: ^Calculator) { c^.buffer /= 10 }},
-    Button{"AC", proc(c: ^Calculator) { c^.buffer = 0}},
-    Button{"%", proc(c: ^Calculator) { set_op_expression(c, .MODULO) }},
-    Button{"/", proc(c: ^Calculator) { set_op_expression(c, .DIVISION) }},
-    Button{"7", proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 7 }},
-    Button{"8", proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 8 }},
-    Button{"9", proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 9 }},
-    Button{"x", proc(c: ^Calculator) { set_op_expression(c, .MULTIPLICATION) }},
-    Button{"4", proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 4 }},
-    Button{"5", proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 5 }},
-    Button{"6", proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 6 }},
-    Button{"-", proc(c: ^Calculator) { set_op_expression(c, .SUBTRACTION) }},
-    Button{"1", proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 1 }},
-    Button{"2", proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 2 }},
-    Button{"3", proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 3 }},
-    Button{"+", proc(c: ^Calculator) { set_op_expression(c, .ADDITION) }},
-    Button{"+/-", proc(c: ^Calculator) { c^.buffer *= -1 }},
-    Button{"0", proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 0 }},
-    Button{".", proc(c: ^Calculator) {}},
-    Button{"=", equals},
+    Button{"<-",  {.BACKSPACE},     proc(c: ^Calculator) { c^.buffer /= 10 }},
+    Button{"AC",  {},               proc(c: ^Calculator) { c^.buffer = 0}},
+    Button{"%",   {},               proc(c: ^Calculator) { set_op_expression(c, .MODULO) }},
+    Button{"/",   {.SLASH},         proc(c: ^Calculator) { set_op_expression(c, .DIVISION) }},
+    Button{"7",   {.SEVEN},         proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 7 }},
+    Button{"8",   {.EIGHT},         proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 8 }},
+    Button{"9",   {.NINE},          proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 9 }},
+    Button{"*",   {.KP_MULTIPLY},   proc(c: ^Calculator) { set_op_expression(c, .MULTIPLICATION) }},
+    Button{"4",   {.FOUR},          proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 4 }},
+    Button{"5",   {.FIVE},          proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 5 }},
+    Button{"6",   {.SIX},           proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 6 }},
+    Button{"-",   {.MINUS},         proc(c: ^Calculator) { set_op_expression(c, .SUBTRACTION) }},
+    Button{"1",   {.ONE},           proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 1 }},
+    Button{"2",   {.TWO},           proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 2 }},
+    Button{"3",   {.THREE},         proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 3 }},
+    Button{"+",   {.KP_ADD},        proc(c: ^Calculator) { set_op_expression(c, .ADDITION) }},
+    Button{"+/-", {},               proc(c: ^Calculator) { c^.buffer *= -1 }},
+    Button{"0",   {.ZERO},          proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 0 }},
+    Button{".",   {.PERIOD},        proc(c: ^Calculator) {}},
+    Button{"=",   {.EQUAL, .ENTER}, equals},
 }
 
 main :: proc () {
@@ -109,6 +110,15 @@ main :: proc () {
                 for btn in CALCULATOR_BUTTONS {
                     if .SUBMIT in mu.button(&mu_ctx, btn.label) {
                         btn.action(&calculator)
+                    }
+
+                    // TODO: Only register hotkey if this is the active window
+                    if len(btn.hotkeys) > 0 {
+                        for key in btn.hotkeys {
+                            if rl.IsKeyPressed(key) {
+                                btn.action(&calculator)
+                            }
+                        }
                     }
                 }
             }
