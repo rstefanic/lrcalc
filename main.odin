@@ -133,6 +133,10 @@ main :: proc () {
                     for btn in CALCULATOR_BUTTONS {
                         if .SUBMIT in mu.button(&mu_ctx, btn.label) {
                             btn.action(&calculator)
+
+                            if !is_active_calculator {
+                                active_calculator = &calculator
+                            }
                         }
 
                         if is_active_calculator {
