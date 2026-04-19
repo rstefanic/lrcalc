@@ -14,10 +14,7 @@ Operator :: enum {
 Term :: distinct i64
 
 SubExpression :: struct {
-    lhs: union {
-        Term,
-        ^SubExpression
-    },
+    lhs: Expression,
     rhs: Maybe(Term),
     op: Operator
 }
