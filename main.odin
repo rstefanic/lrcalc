@@ -19,7 +19,7 @@ Button :: struct {
 
 CALCULATOR_BUTTONS :: []Button{
     Button{"<-",  {.BACKSPACE},     proc(c: ^Calculator) { c^.buffer /= 10 }},
-    Button{"AC",  {},               proc(c: ^Calculator) { c^.buffer = 0}},
+    Button{"AC",  {},               reset},
     Button{"%",   {},               proc(c: ^Calculator) { set_op_expression(c, .MODULO) }},
     Button{"/",   {.SLASH},         proc(c: ^Calculator) { set_op_expression(c, .DIVISION) }},
     Button{"7",   {.SEVEN},         proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 7 }},
@@ -36,7 +36,7 @@ CALCULATOR_BUTTONS :: []Button{
     Button{"+",   {.KP_ADD},        proc(c: ^Calculator) { set_op_expression(c, .ADDITION) }},
     Button{"+/-", {},               proc(c: ^Calculator) { c^.buffer *= -1 }},
     Button{"0",   {.ZERO},          proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 0 }},
-    Button{".",   {.PERIOD},        proc(c: ^Calculator) {}},
+    Button{".",   {.PERIOD},        proc(c: ^Calculator) { /* NOP */ }},
     Button{"=",   {.EQUAL, .ENTER}, equals},
 }
 
