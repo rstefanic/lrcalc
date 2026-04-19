@@ -61,10 +61,12 @@ evaluate_subexpression :: proc(expr: SubExpression) -> Term {
         lhs = evaluate_subexpression(l^)
     }
 
+    // If there is nothing on the RHS, then just return the LHS term
     expr_rhs, rhs_ok := expr.rhs.?
     if !rhs_ok {
-        expr_rhs = Term(0)
+        return lhs
     }
+
     rhs := Term(0)
     switch r in expr_rhs {
     case Term:
