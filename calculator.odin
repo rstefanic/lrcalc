@@ -18,10 +18,7 @@ SubExpression :: struct {
         Term,
         ^SubExpression
     },
-    rhs: Maybe(union {
-        Term,
-        ^SubExpression
-    }),
+    rhs: Maybe(Term),
     op: Operator
 }
 
@@ -66,17 +63,9 @@ evaluate_subexpression :: proc(expr: ^SubExpression) -> Term {
     }
 
     // If there is nothing on the RHS, then just return the LHS term
-    expr_rhs, rhs_ok := expr.rhs.?
+    rhs, rhs_ok := expr.rhs.?
     if !rhs_ok {
         return lhs
-    }
-
-    rhs := Term(0)
-    switch r in expr_rhs {
-    case Term:
-        rhs = r
-    case ^SubExpression:
-        rhs = evaluate_subexpression(r)
     }
 
     result := Term(0)
