@@ -1,6 +1,8 @@
 package main
 
+import "core:fmt"
 import "core:mem"
+import "core:strings"
 
 Operator :: enum {
     ADDITION,
@@ -123,4 +125,35 @@ reset :: proc(c: ^Calculator) {
     mem.arena_free_all(&c.arena)
     c^.expr = Term(0)
     c^.buffer = 0   // reset the buffer
+}
+
+format_expression :: proc(sb: ^strings.Builder, expression: Expression) {
+    switch e in expression {
+    case Term:
+        fmt.sbprintf(sb, "%d", e)
+    case ^SubExpression:
+        // lhs
+        format_expression(sb, e.lhs)
+
+        // operator
+        switch e.op {
+        case .ADDITION:
+            fmt.sbprintf(sb, " + ")
+        case .SUBTRACTION:
+            fmt.sbprintf(sb, " - ")
+        case .MULTIPLICATION:
+            fmt.sbprintf(sb, " * ")
+        case .DIVISION:
+            fmt.sbprintf(sb, " / ")
+        case .MODULO:
+            fmt.sbprintf(sb, " % ")
+        }
+
+        rhs, ok := e.rhs.?
+        if ok {
+            fmt.sbprintf(sb, "%d", rhs)
+        } else {
+            fmt.sbprintf(sb, " ")
+        }
+    }
 }

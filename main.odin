@@ -3,6 +3,7 @@ package main
 import "core:fmt"
 import "core:math"
 import "core:mem"
+import "core:strings"
 
 import rl "vendor:raylib"
 import mu "vendor:microui"
@@ -107,7 +108,14 @@ main :: proc () {
 
             if mu.begin_window(&mu_ctx, "Calc", mu.Rect{0, 0, 512, 412}, mu.Options{.NO_RESIZE}) {
                 defer mu.end_window(&mu_ctx)
-                mu.label(&mu_ctx, fmt.tprintf("%", calculator))
+
+                sb: strings.Builder
+                strings.builder_init(&sb)
+                defer strings.builder_destroy(&sb)
+                format_expression(&sb, calculator.expr)
+
+                mu.label(&mu_ctx, strings.to_string(sb))
+                mu.label(&mu_ctx, fmt.tprintf("%d", calculator.buffer))
                 mu.label(&mu_ctx, fmt.tprintf("%d", evaluate_expression(calculator.expr)))
                 mu.layout_row(&mu_ctx, button_layout)
                 for btn in CALCULATOR_BUTTONS {
