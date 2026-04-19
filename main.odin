@@ -109,9 +109,17 @@ main :: proc () {
 
             // Calculator layout
             for name, &calculator in calculators {
+
+                // Highlight the border of the active calculator window
+                is_active_calculator := active_calculator == &calculator
+                if is_active_calculator {
+                    mu_ctx.style.colors[.BORDER] = { 255, 255, 255, 255}
+                }
+
                 window_name := fmt.tprintf("var (%s)", name)
                 if mu.begin_window(&mu_ctx, window_name, mu.Rect{0, 0, 256, 230}, mu.Options{.NO_RESIZE}) {
                     defer mu.end_window(&mu_ctx)
+                    mu_ctx.style.colors[.BORDER] = { 25, 25, 25, 255} // reset border color in case it was changed
 
                     sb: strings.Builder
                     strings.builder_init(&sb)
@@ -127,7 +135,7 @@ main :: proc () {
                             btn.action(&calculator)
                         }
 
-                        if active_calculator == &calculator {
+                        if is_active_calculator {
                             if len(btn.hotkeys) > 0 {
                                 for key in btn.hotkeys {
                                     if rl.IsKeyPressed(key) {
