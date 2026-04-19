@@ -74,6 +74,7 @@ main :: proc () {
     calculators := make(map[string]Calculator)
     calculators["x"] = Calculator{}
     init_calculator(&calculators["x"])
+    active_calculator: ^Calculator = &calculators["x"]
 
     for !rl.WindowShouldClose() {
         // Pass raylib inputs to microui
@@ -108,7 +109,8 @@ main :: proc () {
 
             // Calculator layout
             for name, &calculator in calculators {
-                if mu.begin_window(&mu_ctx, fmt.tprintf("Variable (%s)", name), mu.Rect{0, 0, 256, 230}, mu.Options{.NO_RESIZE}) {
+                window_name := fmt.tprintf("var (%s)", name)
+                if mu.begin_window(&mu_ctx, window_name, mu.Rect{0, 0, 256, 230}, mu.Options{.NO_RESIZE}) {
                     defer mu.end_window(&mu_ctx)
 
                     sb: strings.Builder
@@ -116,20 +118,42 @@ main :: proc () {
                     defer strings.builder_destroy(&sb)
                     format_expression(&sb, calculator.expr)
 
+                    mu.label(&mu_ctx, fmt.tprintf("%s = %d", name, evaluate_expression(calculator.expr)))
                     mu.label(&mu_ctx, strings.to_string(sb))
                     mu.label(&mu_ctx, fmt.tprintf("%d", calculator.buffer))
-                    mu.label(&mu_ctx, fmt.tprintf("%d", evaluate_expression(calculator.expr)))
                     mu.layout_row(&mu_ctx, []i32{48, 48, 48, -1})
                     for btn in CALCULATOR_BUTTONS {
                         if .SUBMIT in mu.button(&mu_ctx, btn.label) {
                             btn.action(&calculator)
                         }
 
-                        // TODO: Only register hotkey if this is the active window
-                        if len(btn.hotkeys) > 0 {
-                            for key in btn.hotkeys {
-                                if rl.IsKeyPressed(key) {
-                                    btn.action(&calculator)
+                        if active_calculator == &calculator {
+                            if len(btn.hotkeys) > 0 {
+                                for key in btn.hotkeys {
+                                    if rl.IsKeyPressed(key) {
+                                        btn.action(&calculator)
+                                    }
+                                }
+                            }
+
+                            @static variable_keys := [?]struct{
+                                key: rl.KeyboardKey,
+                                name: string
+                            }{
+                                {.X, "x"},
+                                {.Y, "y"},
+                                {.Z, "z"},
+                            }
+
+                            for varkey in variable_keys {
+                                if rl.IsKeyPressed(varkey.key) {
+                                    // check if it exists in our calculators list;
+                                    // add it if it doesn't exist
+                                    if c, ok := calculators[varkey.name]; !ok {
+                                        calculators[varkey.name] = Calculator{}
+                                        init_calculator(&calculators[varkey.name])
+                                        active_calculator = &calculators[varkey.name]
+                                    }
                                 }
                             }
                         }
