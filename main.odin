@@ -184,6 +184,7 @@ main :: proc () {
                                         calculators[varkey.name] = Calculator{}
                                         init_calculator(&calculators[varkey.name])
                                         active_calculator = &calculators[varkey.name]
+                                        c = calculators[varkey.name]
                                     }
 
                                     calculator.buffer = Variable{ varkey.name, &c }
