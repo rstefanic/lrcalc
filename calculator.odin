@@ -187,9 +187,7 @@ format_expression :: proc(sb: ^strings.Builder, expression: Expression) {
 
         rhs, ok := e.rhs.?
         if ok {
-            fmt.sbprintf(sb, "%d", rhs)
-        } else {
-            fmt.sbprintf(sb, " ")
+            format_expression(sb, rhs)
         }
     }
 }
