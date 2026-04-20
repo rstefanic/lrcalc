@@ -98,10 +98,16 @@ evaluate_subexpression :: proc(expr: ^SubExpression) -> Term {
         case .MULTIPLICATION:
             result = lhs * rhs
         case .DIVISION:
-            // TODO: Handle case where rhs may be 0
+            if rhs == Term(0) {
+                fmt.println("rhs evaluated to 0: returning 0")
+                return rhs
+            }
             result = lhs / rhs
         case .MODULO:
-            // TODO: Handle case where rhs may be 0
+            if rhs == Term(0) {
+                fmt.println("rhs evaluated to 0: returning 0")
+                return rhs
+            }
             result = lhs % rhs
     }
 
