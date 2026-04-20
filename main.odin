@@ -179,15 +179,14 @@ main :: proc () {
                                 if rl.IsKeyPressed(varkey.key) {
                                     // check if it exists in our calculators list;
                                     // add it if it doesn't exist create it
-                                    c, ok := calculators[varkey.name]
+                                    _, ok := calculators[varkey.name]
                                     if !ok {
                                         calculators[varkey.name] = Calculator{}
                                         init_calculator(&calculators[varkey.name])
                                         active_calculator = &calculators[varkey.name]
-                                        c = calculators[varkey.name]
                                     }
 
-                                    calculator.buffer = Variable{ varkey.name, &c }
+                                    calculator.buffer = Variable{ varkey.name, &calculators[varkey.name] }
                                 }
                             }
                         }
