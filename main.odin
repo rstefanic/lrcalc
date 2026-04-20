@@ -130,7 +130,16 @@ main :: proc () {
                     format_expression(&sb, calculator.expr)
 
                     mu.label(&mu_ctx, fmt.tprintf("%s = %d", name, evaluate_expression(calculator.expr)))
-                    mu.label(&mu_ctx, strings.to_string(sb))
+
+                    switch expr in calculator.expr {
+                    case ^SubExpression:
+                        mu.label(&mu_ctx, strings.to_string(sb))
+                    case Term:
+                        mu.label(&mu_ctx, "")
+                    case Variable:
+                        mu.label(&mu_ctx, "")
+                    }
+
                     switch buf in calculator.buffer {
                     case i64:
                         mu.label(&mu_ctx, fmt.tprintf("%d", buf))
