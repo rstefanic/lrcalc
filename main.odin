@@ -118,7 +118,9 @@ main :: proc () {
                 }
 
                 window_name := fmt.tprintf("var (%s)", name)
-                if mu.begin_window(&mu_ctx, window_name, mu.Rect{0, 0, 256, 230}, mu.Options{.NO_RESIZE}) {
+                new_window_x := i32(len(calculators) * 25)
+                new_window_y := i32(len(calculators) * 25)
+                if mu.begin_window(&mu_ctx, window_name, mu.Rect{new_window_x, new_window_y, 256, 230}, mu.Options{.NO_RESIZE}) {
                     defer mu.end_window(&mu_ctx)
                     mu_ctx.style.colors[.BORDER] = { 25, 25, 25, 255} // reset border color in case it was changed
 
