@@ -157,8 +157,9 @@ equals :: proc(c: ^Calculator) {
         expr = e
     }
 
-    c^.expr = evaluate_expression(expr) // evaluate into a single term
-    c^.buffer = 0   // reset the buffer
+    result := evaluate_expression(expr) // evaluate into a single term
+    reset(c)
+    c^.expr = result
 }
 
 reset :: proc(c: ^Calculator) {
