@@ -13,6 +13,10 @@ Operator :: enum {
 }
 
 Term :: distinct i64
+Variable :: struct {
+    name: string,
+    ref: ^Calculator
+}
 
 SubExpression :: struct {
     lhs: Expression,
@@ -22,7 +26,8 @@ SubExpression :: struct {
 
 Expression :: union {
     ^SubExpression,
-    Term
+    Term,
+    Variable
 }
 
 Calculator :: struct {
@@ -45,6 +50,8 @@ evaluate_expression :: proc(expr: Expression) -> Term {
     switch expression in expr {
         case Term:
             result = expression
+        case Variable:
+            result = evaluate_expression(expression.ref.expr)
         case ^SubExpression:
             result = evaluate_subexpression(expression)
     }
@@ -57,6 +64,8 @@ evaluate_subexpression :: proc(expr: ^SubExpression) -> Term {
     switch l in expr.lhs {
     case Term:
         lhs = l
+    case Variable:
+        lhs = evaluate_expression(l.ref.expr)
     case ^SubExpression:
         lhs = evaluate_subexpression(l)
     }
@@ -71,6 +80,8 @@ evaluate_subexpression :: proc(expr: ^SubExpression) -> Term {
     switch r in expr_rhs {
     case Term:
         rhs = r
+    case Variable:
+        rhs = evaluate_expression(r.ref.expr)
     case ^SubExpression:
         rhs = evaluate_subexpression(r)
     }
@@ -98,7 +109,7 @@ set_op_expression :: proc(c: ^Calculator, op: Operator) {
     buf := Term(c.buffer)
     new_expr := new(SubExpression, c.allocator)
 
-    switch &e in c.expr {
+    #partial switch &e in c.expr {
         case Term:
             new_expr.lhs = buf
         case ^SubExpression:
@@ -139,6 +150,8 @@ format_expression :: proc(sb: ^strings.Builder, expression: Expression) {
     switch e in expression {
     case Term:
         fmt.sbprintf(sb, "%d", e)
+    case Variable:
+        fmt.sbprintf(sb, "%s", e.name)
     case ^SubExpression:
         // lhs
         format_expression(sb, e.lhs)
