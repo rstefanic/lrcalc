@@ -20,24 +20,24 @@ Button :: struct {
 }
 
 CALCULATOR_BUTTONS :: []Button{
-    Button{"<-",  {.BACKSPACE},     proc(c: ^Calculator) { c^.buffer /= 10 }},
+    Button{"<-",  {.BACKSPACE},     pop_last_digit},
     Button{"AC",  {},               reset},
     Button{"%",   {},               proc(c: ^Calculator) { set_op_expression(c, .MODULO) }},
     Button{"/",   {.SLASH},         proc(c: ^Calculator) { set_op_expression(c, .DIVISION) }},
-    Button{"7",   {.SEVEN},         proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 7 }},
-    Button{"8",   {.EIGHT},         proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 8 }},
-    Button{"9",   {.NINE},          proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 9 }},
+    Button{"7",   {.SEVEN},         proc(c: ^Calculator) { add_digit_to_buffer(c, 7) }},
+    Button{"8",   {.EIGHT},         proc(c: ^Calculator) { add_digit_to_buffer(c, 8) }},
+    Button{"9",   {.NINE},          proc(c: ^Calculator) { add_digit_to_buffer(c, 9) }},
     Button{"*",   {.KP_MULTIPLY},   proc(c: ^Calculator) { set_op_expression(c, .MULTIPLICATION) }},
-    Button{"4",   {.FOUR},          proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 4 }},
-    Button{"5",   {.FIVE},          proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 5 }},
-    Button{"6",   {.SIX},           proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 6 }},
+    Button{"4",   {.FOUR},          proc(c: ^Calculator) { add_digit_to_buffer(c, 4) }},
+    Button{"5",   {.FIVE},          proc(c: ^Calculator) { add_digit_to_buffer(c, 5) }},
+    Button{"6",   {.SIX},           proc(c: ^Calculator) { add_digit_to_buffer(c, 6) }},
     Button{"-",   {.MINUS},         proc(c: ^Calculator) { set_op_expression(c, .SUBTRACTION) }},
-    Button{"1",   {.ONE},           proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 1 }},
-    Button{"2",   {.TWO},           proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 2 }},
-    Button{"3",   {.THREE},         proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 3 }},
+    Button{"1",   {.ONE},           proc(c: ^Calculator) { add_digit_to_buffer(c, 1) }},
+    Button{"2",   {.TWO},           proc(c: ^Calculator) { add_digit_to_buffer(c, 2) }},
+    Button{"3",   {.THREE},         proc(c: ^Calculator) { add_digit_to_buffer(c, 3) }},
     Button{"+",   {.KP_ADD},        proc(c: ^Calculator) { set_op_expression(c, .ADDITION) }},
-    Button{"+/-", {},               proc(c: ^Calculator) { c^.buffer *= -1 }},
-    Button{"0",   {.ZERO},          proc(c: ^Calculator) { c^.buffer = (c^.buffer * 10) + 0 }},
+    Button{"+/-", {},               flip_sign},
+    Button{"0",   {.ZERO},          proc(c: ^Calculator) { add_digit_to_buffer(c, 0) }},
     Button{".",   {.PERIOD},        proc(c: ^Calculator) { /* NOP */ }},
     Button{"=",   {.EQUAL, .ENTER}, equals},
 }
@@ -71,6 +71,7 @@ main :: proc () {
     mu_ctx.text_width = mu.default_atlas_text_width
     mu_ctx.text_height = mu.default_atlas_text_height
 
+    // Map of calculators (a.k.a. variables)
     calculators := make(map[string]Calculator)
     calculators["x"] = Calculator{}
     init_calculator(&calculators["x"])
@@ -128,7 +129,13 @@ main :: proc () {
 
                     mu.label(&mu_ctx, fmt.tprintf("%s = %d", name, evaluate_expression(calculator.expr)))
                     mu.label(&mu_ctx, strings.to_string(sb))
-                    mu.label(&mu_ctx, fmt.tprintf("%d", calculator.buffer))
+                    switch buf in calculator.buffer {
+                    case i64:
+                        mu.label(&mu_ctx, fmt.tprintf("%d", buf))
+                    case Variable:
+                        mu.label(&mu_ctx, fmt.tprintf("%s", buf.name))
+                    }
+
                     mu.layout_row(&mu_ctx, []i32{48, 48, 48, -1})
                     for btn in CALCULATOR_BUTTONS {
                         if .SUBMIT in mu.button(&mu_ctx, btn.label) {
@@ -160,12 +167,15 @@ main :: proc () {
                             for varkey in variable_keys {
                                 if rl.IsKeyPressed(varkey.key) {
                                     // check if it exists in our calculators list;
-                                    // add it if it doesn't exist
-                                    if c, ok := calculators[varkey.name]; !ok {
+                                    // add it if it doesn't exist create it
+                                    c, ok := calculators[varkey.name]
+                                    if !ok {
                                         calculators[varkey.name] = Calculator{}
                                         init_calculator(&calculators[varkey.name])
                                         active_calculator = &calculators[varkey.name]
                                     }
+
+                                    calculator.buffer = Variable{ varkey.name, &c }
                                 }
                             }
                         }

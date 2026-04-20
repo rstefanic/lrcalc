@@ -33,7 +33,10 @@ Expression :: union {
 Calculator :: struct {
     arena: mem.Arena,
     allocator: mem.Allocator,
-    buffer: i64, // current value the user is entering in
+    buffer: union {
+        i64,
+        Variable,
+    }, // current value the user is entering in
     expr: Expression,
 }
 
@@ -106,14 +109,20 @@ evaluate_subexpression :: proc(expr: ^SubExpression) -> Term {
 }
 
 set_op_expression :: proc(c: ^Calculator, op: Operator) {
-    buf := Term(c.buffer)
-    new_expr := new(SubExpression, c.allocator)
+    expr: Expression
+    switch buf in c.buffer {
+    case i64:
+        expr = Term(buf)
+    case Variable:
+        expr = buf
+    }
 
+    new_expr := new(SubExpression, c.allocator)
     #partial switch &e in c.expr {
         case Term:
-            new_expr.lhs = buf
+            new_expr.lhs = expr
         case ^SubExpression:
-            e.rhs = buf
+            e.rhs = expr
             new_expr.lhs = e
     }
 
@@ -123,18 +132,18 @@ set_op_expression :: proc(c: ^Calculator, op: Operator) {
     c^.buffer = 0       // reset the buffer
 }
 
-create_term_from_buffer :: proc(c: ^Calculator) {
-    new_term := Term(c.buffer)  // cast to term
-    c^.expr = new_term          // copy the term
-    c^.buffer = 0               // reset the buffer
-}
-
 equals :: proc(c: ^Calculator) {
     // Move the buffer from the term into the rhs
     #partial switch e in c.expr {
     case ^SubExpression:
-        last_term := Term(c.buffer)
-        e.rhs = last_term
+        expr: Expression
+        switch buf in c.buffer {
+        case i64:
+            expr = Term(buf)
+        case Variable:
+            expr = buf
+        }
+        e.rhs = expr
         c^.expr = evaluate_expression(e) // evaluate into a single term
     }
     c^.buffer = 0   // reset the buffer
@@ -176,5 +185,26 @@ format_expression :: proc(sb: ^strings.Builder, expression: Expression) {
         } else {
             fmt.sbprintf(sb, " ")
         }
+    }
+}
+
+add_digit_to_buffer :: proc(c: ^Calculator, n: i64) {
+    #partial switch &buf in c.buffer {
+    case i64:
+        buf = (buf * 10) + n
+    }
+}
+
+pop_last_digit :: proc(c: ^Calculator) {
+    #partial switch &buf in c.buffer {
+    case i64:
+        buf /= 10
+    }
+}
+
+flip_sign :: proc(c: ^Calculator) {
+    #partial switch &buf in c.buffer {
+    case i64:
+        buf *= -1
     }
 }
