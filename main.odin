@@ -170,20 +170,31 @@ main :: proc () {
                                 key: rl.KeyboardKey,
                                 name: string
                             }{
-                                {.X, "x"},
-                                {.Y, "y"},
-                                {.Z, "z"},
+                                {.A, "a"}, {.B, "b"}, {.C, "c"}, {.D, "d"},
+                                {.E, "e"}, {.F, "f"}, {.G, "g"}, {.H, "h"},
+                                {.I, "i"}, {.J, "j"}, {.K, "k"}, {.L, "l"},
+                                {.M, "m"}, {.N, "n"}, {.O, "o"}, {.P, "p"},
+                                {.Q, "q"}, {.R, "r"}, {.S, "s"}, {.T, "t"},
+                                {.U, "u"}, {.V, "v"}, {.W, "w"}, {.X, "x"},
+                                {.Y, "y"}, {.Z, "z"},
                             }
 
                             for varkey in variable_keys {
                                 if rl.IsKeyPressed(varkey.key) {
-                                    // check if it exists in our calculators list;
-                                    // add it if it doesn't exist create it
-                                    _, ok := calculators[varkey.name]
+                                    // Check if it exists in our calculators list
+                                    c, ok := calculators[varkey.name]
+
+                                    // Add it if the calculator doesn't exist yet
                                     if !ok {
                                         calculators[varkey.name] = Calculator{}
                                         init_calculator(&calculators[varkey.name])
                                         active_calculator = &calculators[varkey.name]
+                                    }
+
+                                    // Do not allow calculators to reference themselves. Exit early
+                                    // if the user is trying to add this variable to itself.
+                                    if active_calculator == &calculators[varkey.name] {
+                                        break
                                     }
 
                                     calculator.buffer = Variable{ varkey.name, &calculators[varkey.name] }
