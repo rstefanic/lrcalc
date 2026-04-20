@@ -133,19 +133,25 @@ set_op_expression :: proc(c: ^Calculator, op: Operator) {
 }
 
 equals :: proc(c: ^Calculator) {
+    expr: Expression
+    switch buf in c.buffer {
+    case i64:
+        expr = Term(buf)
+    case Variable:
+        expr = buf
+    }
+
     // Move the buffer from the term into the rhs
     #partial switch e in c.expr {
     case ^SubExpression:
-        expr: Expression
-        switch buf in c.buffer {
-        case i64:
-            expr = Term(buf)
-        case Variable:
-            expr = buf
+        // Set the rhs with the existing expression if it's empty
+        if _, ok := e.rhs.?; !ok { 
+            e.rhs = expr
         }
-        e.rhs = expr
-        c^.expr = evaluate_expression(e) // evaluate into a single term
+        expr = e
     }
+
+    c^.expr = evaluate_expression(expr) // evaluate into a single term
     c^.buffer = 0   // reset the buffer
 }
 
